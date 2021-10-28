@@ -1,5 +1,7 @@
 package com.graduate.lookatv2.camview;
 
+import com.graduate.lookatv2.SearchActivity;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
@@ -10,6 +12,7 @@ import java.util.List;
 public final class GetTargetContour {
 
     private static final int AREA_THRESHOLD = 700;
+    private static final int FRAME_SIZE = Constant.FRAME_MAX_WIDTH * Constant.FRAME_MAX_HEIGHT;
 
     private final List<MatOfPoint> mContours;
 
@@ -32,9 +35,10 @@ public final class GetTargetContour {
             final int pointsInt = (int) points.total();
             // Calculate the rectangle area to discard small contours
             final double area = Imgproc.contourArea(points);
+            final double ratio = area / FRAME_SIZE;
             // Now if the approximated contour has four points, we assume that we have
             // found the document
-            if (pointsInt == 4 && area > AREA_THRESHOLD) {
+            if (pointsInt == 4 && ratio > 0.1) {
                 target = points;
                 break;
             }
