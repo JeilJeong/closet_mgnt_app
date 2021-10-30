@@ -2,6 +2,7 @@ package com.graduate.lookatv2.camview;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -33,26 +34,32 @@ public class ProcessedImageActivity extends AppCompatActivity {
 
         // Obtain the image from extras
         final Intent intent = getIntent();
-        final byte[] imageArray = intent.getByteArrayExtra("image");
+//        final byte[] imageArray = intent.getByteArrayExtra("image");
+        final String imgpath = intent.getStringExtra("path");
+        Bitmap bmp = BitmapFactory.decodeFile(imgpath);
 
         final int width = intent.getIntExtra("width", 0);
         final int height = intent.getIntExtra("height", 0);
-        if (width == 0 || height == 0) {
-            Log.w(TAG, "Can't determine image size");
-            return;
-        }
-        Log.d(TAG, "Received image (" + imageArray.length + " bytes, w="
-                + width + ", h=" + height + ")");
+//        if (width == 0 || height == 0) {
+//            Log.w(TAG, "Can't determine image size");
+//            return;
+//        }
+//        Log.d(TAG, "Received image (" + imageArray.length + " bytes, w="
+//                + width + ", h=" + height + ")");
+        Log.d(TAG, "Received image (" + bmp.getByteCount() + " bytes, frame_width="
+                + width + ", frame_height=" + height + ")" + "(bmp_width: " + bmp.getWidth() +", bmp_height:" + bmp.getHeight() + ")" );
 
         // Transform the byte array to Mat object
         final Size size = new Size(width, height);
         final Mat matImage = new Mat(size, CvType.CV_8U);
-        matImage.put(0, 0, imageArray);
+//        matImage.put(0, 0, imageArray);
+
+        Utils.bitmapToMat(bmp, matImage);
         Log.d(TAG, "Converted image byte array to Mat object");
 
         // Apply filters
         final Mat grayMat = new Mat();
-        Imgproc.cvtColor(matImage, grayMat, Imgproc.COLOR_BayerBG2GRAY);
+        Imgproc.cvtColor(matImage, grayMat, Imgproc.COLOR_RGBA2GRAY);
         Imgproc.GaussianBlur(grayMat, grayMat, new Size(5, 5), 0);
 
         final Mat cannedMat = new Mat();

@@ -12,7 +12,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.LooKATv2">
+        android:theme="@style/Theme.LooKATv2"
+        android:screenOrientation="landscape">
         <activity
             android:name=".camview.EdgeDetectionActivity"
             android:exported="true" />

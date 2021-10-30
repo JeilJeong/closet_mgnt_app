@@ -42,6 +42,10 @@ public final class GetTargetContour {
                 target = points;
                 break;
             }
+//            if (pointsInt == 4 && area > AREA_THRESHOLD) {
+//                target = points;
+//                break;
+//            }
         }
         approx.release();
 

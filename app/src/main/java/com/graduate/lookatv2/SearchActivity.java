@@ -391,17 +391,19 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         final Mat rgba = inputFrame.rgba();
-        final Mat rotateImg = rotateImg(rgba, 270);
-        mRealTimeProcessor.process(rotateImg);
+        final Mat rotateImg = mRealTimeProcessor.process(rgba);
         return rotateImg;
     }
 
     @Override
     public void onPictureTaken(byte[] picture) {
         Log.d(TAG, "Picture taken!");
-        // Send the image to be precessed
+        // Save the image to be precessed
+        String imgpath = ImageIO.savePath();
+        ImageIO.saveImage(picture, imgpath);
+
         final Intent imageBytes = new Intent(this, ProcessedImageActivity.class);
-        imageBytes.putExtra("image", picture);
+        imageBytes.putExtra("path", Constant.ROOT_DIRECTORY + "/" + imgpath + ".jpeg");
         // Image size data
         final Camera.Size size = mRealTimeCameraView.size();
         imageBytes.putExtra("width", size.width);

@@ -18,10 +18,10 @@ import java.util.Date;
 
 public class ImageIO {
     private static final String TAG = "AndroidOpenCv" + ImageIO.class.getSimpleName();
-    private static final String ROOT_DIRECTORY = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString()+ "/lookat";
+
 
     public static boolean saveImagetoText(byte[] picture, String saveImageName) {
-        String saveDir = ROOT_DIRECTORY;
+        String saveDir = Constant.ROOT_DIRECTORY;
         File file = new File(saveDir);
         if (!file.exists()) {
             file.mkdir();
@@ -53,7 +53,7 @@ public class ImageIO {
     }
 
     public static boolean saveImage(byte[] picture, String saveImageName) {
-        String saveDir = ROOT_DIRECTORY;
+        String saveDir = Constant.ROOT_DIRECTORY;
         File file = new File(saveDir);
         if (!file.exists()) {
             file.mkdir();
@@ -104,7 +104,7 @@ public class ImageIO {
     public static Bitmap loadImage(String filename) {
         Bitmap myBitmap = null;
         try {
-            File filepath = new File(ROOT_DIRECTORY + "/" + filename);
+            File filepath = new File(Constant.ROOT_DIRECTORY + "/" + filename);
             if (filepath.exists()){
                 myBitmap = BitmapFactory.decodeFile(filepath.getAbsolutePath());
             }
@@ -117,7 +117,7 @@ public class ImageIO {
     }
 
     public static byte[] loadTxt(String path) {
-        File file = new File(ROOT_DIRECTORY + "/" + path);
+        File file = new File(Constant.ROOT_DIRECTORY + "/" + path);
         int size = (int) file.length();
         byte[] bytes = new byte[size];
         try {
@@ -146,7 +146,7 @@ public class ImageIO {
         }
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        File f = new File(ROOT_DIRECTORY + "/" + filepath + ".jpeg");
+        File f = new File(Constant.ROOT_DIRECTORY + "/" + filepath + ".jpeg");
         FileOutputStream fo = null;
         try {
             f.createNewFile();
