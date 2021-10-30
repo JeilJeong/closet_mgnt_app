@@ -2,9 +2,15 @@ package com.graduate.lookatv2.camview;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.Image;
 import android.os.Environment;
 import android.util.Log;
+
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -69,7 +75,7 @@ public class ImageIO {
             if (tempFile.createNewFile()) {
                 output = new FileOutputStream(tempFile);
                 Bitmap newBitmap = bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
-                newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+                newBitmap.compress(Bitmap.CompressFormat.JPEG, 50, output);
             } else {
                 Log.d(TAG, "Same file exists:"+saveImageName);
 
@@ -94,6 +100,58 @@ public class ImageIO {
             }
         }
         return true;
+    }
+
+    public static boolean saveImageRotated(byte[] picture, String saveImageName, int angle) {
+        String saveDir = Constant.ROOT_DIRECTORY;
+        File file = new File(saveDir);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+        Bitmap bitmap = byteArrayToBitmap(picture);
+        bitmap = rotateImage(bitmap, angle);
+
+        String fileName = saveImageName + ".jpeg";
+        File tempFile = new File(saveDir, fileName);
+        FileOutputStream output = null;
+
+        try {
+            if (tempFile.createNewFile()) {
+                output = new FileOutputStream(tempFile);
+                Bitmap newBitmap = bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+                newBitmap.compress(Bitmap.CompressFormat.JPEG, 50, output);
+            } else {
+                Log.d(TAG, "Same file exists:"+saveImageName);
+
+                return false;
+            }
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "can't find file name");
+            return false;
+
+        } catch (IOException e) {
+            Log.d(TAG, "Error in IO");
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            if (output != null) {
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+    Matrix matrix = new Matrix();
+    matrix.postRotate(angle);
+    return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+            matrix, true);
     }
 
     public static Bitmap byteArrayToBitmap(byte[] byteArray) {

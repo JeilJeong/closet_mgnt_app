@@ -400,7 +400,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         Log.d(TAG, "Picture taken!");
         // Save the image to be precessed
         String imgpath = ImageIO.savePath();
-        ImageIO.saveImage(picture, imgpath);
+        ImageIO.saveImageRotated(picture, imgpath, 90);
 
         final Intent imageBytes = new Intent(this, ProcessedImageActivity.class);
         imageBytes.putExtra("path", Constant.ROOT_DIRECTORY + "/" + imgpath + ".jpeg");
