@@ -54,6 +54,7 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -61,6 +62,7 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 
@@ -78,6 +80,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 
 public class SearchActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnLongClickListener,
@@ -90,6 +93,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
     private Button pictureBtn;
     private ImageView thumnail;
     private TextView resultTextView;
+    private List<String> serialNum;
 
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
@@ -269,6 +273,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 
         final Mat result = new Mat(resultH, resultW, CvType.CV_8UC4);
         transformed.convertTo(result, CvType.CV_8UC4);
+        Core.flip(result, result, 0);
 
         final Bitmap bitmap = Bitmap.createBitmap(resultW, resultH, Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(result, bitmap);
@@ -297,9 +302,22 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                     Log.d(TAG, "OCR: Success");
                                                     pictureBtn.setVisibility(View.GONE);
                                                     resultTextView.setVisibility(View.VISIBLE);
-                                                    resultTextView.append(FirebaseVisionText.zzbxm.getText());
-                                                    Log.d(TAG, FirebaseVisionText.zzbxm.getText());
-
+                                                    List<FirebaseVisionText.TextBlock> textBlocks = firebaseVisionText.getTextBlocks();
+                                                    for (FirebaseVisionText.TextBlock textBlock : textBlocks) {
+                                                        List<FirebaseVisionText.Line> lines = textBlock.getLines();
+                                                        for (FirebaseVisionText.Line line : lines) {
+                                                            String str = line.getText();
+                                                            resultTextView.append(str);
+                                                            boolean flag = serialNumFilter(str);
+                                                            if (flag) {
+                                                                resultTextView.append("\nthis is succeed project: " + str);
+                                                                String substr = str.substring(str.indexOf("-") - 6);
+                                                                resultTextView.append("\nparsed string: " + substr + "\n");
+                                                            } else {
+                                                                resultTextView.append("\nfail");
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             })
                                                     .addOnFailureListener(
@@ -319,6 +337,16 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         return (rotateImg);
     }
 
+    private static boolean serialNumFilter(String str) {
+        boolean flag = false;
+        if (str == null) {
+            return (flag);
+        }
+//        String pattern = "^[a-zA-Z0-9]+-[a-zA-Z0-9]+$";
+        String pattern = "^[\\S|\\s]+-[a-zA-Z0-9]+$";
+        flag = Pattern.matches(pattern, str);
+        return (flag);
+    }
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
