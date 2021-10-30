@@ -20,7 +20,6 @@
             android:name=".camview.ProcessedImageActivity"
             android:exported="true" />
         <activity android:name=".SearchActivity" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -30,6 +29,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
     </application>
 
 </manifest>

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,15 +14,29 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.exifinterface.media.ExifInterface;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptions;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+import com.google.firebase.ml.vision.text.RecognizedLanguage;
 import com.graduate.lookatv2.camview.GetContours;
 import com.graduate.lookatv2.camview.GetTargetContour;
 import com.graduate.lookatv2.camview.ImageIO;
@@ -73,6 +89,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 
     private Button pictureBtn;
     private ImageView thumnail;
+    private TextView resultTextView;
 
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
@@ -125,6 +142,11 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 
 //      thumnail imgview
         thumnail = findViewById(R.id.image_thumnail);
+        thumnail.setVisibility(View.GONE);
+
+//      result TextView
+        resultTextView = findViewById(R.id.resultTextView);
+        resultTextView.setVisibility(View.GONE);
 
 //      debugging log
         Log.d(TAG, "onCreate: end line");
@@ -198,7 +220,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         final Mat grayMat = new Mat();
         Mat rotateImg = rotateImg(rgba, 270);
         Imgproc.cvtColor(rotateImg, grayMat, Imgproc.COLOR_RGB2GRAY, 4);
-        Imgproc.GaussianBlur(grayMat, grayMat, new Size(5, 5), 0);
+        Imgproc.GaussianBlur(grayMat, grayMat, new Size(3, 3), 0);
 
         final Mat cannedMat = new Mat();
         Imgproc.Canny(grayMat, cannedMat, 75, 200);
@@ -238,8 +260,8 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         // With the transformed points, now convert the image to gray scale
         // and threshold it to give it the paper effect
         Imgproc.cvtColor(transformed, transformed, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.adaptiveThreshold(transformed, transformed, 251,
-                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 15, 15);
+        Imgproc.adaptiveThreshold(transformed, transformed, 255,
+                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 21, 10);
 
         final Size transformedSize = transformed.size();
         final int resultW = (int) transformedSize.width;
@@ -254,21 +276,54 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                String filepath = ImageIO.savePath();
+                ImageIO.saveImageBitmap(bitmap, filepath);
+                thumnail.setVisibility(View.VISIBLE);
                 thumnail.setImageBitmap(bitmap);
+                replaceView(mRealTimeCameraView, thumnail);
+
+//              OCR process
+                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+                FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+                        .getCloudTextRecognizer();
+                FirebaseVisionCloudTextRecognizerOptions options = new FirebaseVisionCloudTextRecognizerOptions.Builder()
+                        .setLanguageHints(Arrays.asList("ko", "hi"))
+                        .build();
+                Task<FirebaseVisionText> result =
+                        detector.processImage(image)
+                                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                                    @Override
+                                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                                                    Log.d(TAG, "OCR: Success");
+                                                    pictureBtn.setVisibility(View.GONE);
+                                                    resultTextView.setVisibility(View.VISIBLE);
+                                                    resultTextView.append(FirebaseVisionText.zzbxm.getText());
+                                                    Log.d(TAG, FirebaseVisionText.zzbxm.getText());
+
+                                                }
+                                            })
+                                                    .addOnFailureListener(
+                                        new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.d(TAG, "OCR: Fail");
+                                            }
+                                        });
             }
         });
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         // release not needed mat
         cannedMat.release();
         grayMat.release();
         Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
                 -1, mScalarGreen, 3);
         return (rotateImg);
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     // permission
@@ -306,6 +361,28 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         rotMat = Imgproc.getRotationMatrix2D(center, angle, 1);
         Imgproc.warpAffine(src, dst, rotMat, dst.size());
         return dst;
+    }
+
+    public static ViewGroup getParent(View view) {
+        return (ViewGroup)view.getParent();
+    }
+
+    public static void removeView(View view) {
+        ViewGroup parent = getParent(view);
+        if(parent != null) {
+            parent.removeView(view);
+        }
+    }
+
+    public static void replaceView(View currentView, View newView) {
+        ViewGroup parent = getParent(currentView);
+        if(parent == null) {
+            return;
+        }
+        final int index = parent.indexOfChild(currentView);
+        removeView(currentView);
+        removeView(newView);
+        parent.addView(newView, index);
     }
 //    @Override
 //    public void onPictureTaken(byte[] picture) {

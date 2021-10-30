@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "502321624490",
+    "project_id": "lookat-941bd",
+    "storage_bucket": "lookat-941bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502321624490:android:8a286cef56393276b167d3",
+        "android_client_info": {
+          "package_name": "com.graduate.lookatv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502321624490-7rj8ndgd9obe59demjg2jutkndua6qq4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmSLevC5OCZkWFRuv-Q7-W0w7ow6yAIRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502321624490-7rj8ndgd9obe59demjg2jutkndua6qq4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -17,6 +17,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
+                <ImageView
+                    android:id="@+id/image_thumnail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top|center" />
+
         </FrameLayout>
 
         <FrameLayout
@@ -48,11 +54,11 @@
                     android:textColor="#fff"
                     android:textSize="10sp" />
 
-                <ImageView
-                    android:id="@+id/image_thumnail"
+                <TextView
+                    android:id="@+id/resultTextView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="top|center" />
+                    android:layout_height="match_parent" />
+
         </FrameLayout>
 
 </LinearLayout>
