@@ -213,118 +213,118 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         Log.d(TAG, "onCameraViewStopped");
     }
 
-    @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        final Mat rgba = inputFrame.rgba();
-//        final Mat res = mRealTimeProcessor.process(rgba);
-        final Mat grayMat = new Mat();
-        Mat rotateImg = rotateImg(rgba, 270);
-        Imgproc.cvtColor(rotateImg, grayMat, Imgproc.COLOR_RGB2GRAY, 4);
-        Imgproc.GaussianBlur(grayMat, grayMat, new Size(3, 3), 0);
-
-        final Mat cannedMat = new Mat();
-        Imgproc.Canny(grayMat, cannedMat, 75, 200);
-
-        final GetContours getContours = new GetContours(cannedMat);
-        final List<MatOfPoint> contours = getContours.contours();
-            // Do nothing if contours is empty
-            if (contours.isEmpty()) {
-                return (rgba);
-        }
-        // Get the target contour
-        final Scalar mScalarGreen = new Scalar(0, 255, 0);
-        final Mat target = new GetTargetContour(contours).target();
-//        if (target != null) {
-//            Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
-//                    -1, mScalarGreen, 3);
-//          ######## Here is starting point ########
+//    @Override
+//    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+//        final Mat rgba = inputFrame.rgba();
+////        final Mat res = mRealTimeProcessor.process(rgba);
+//        final Mat grayMat = new Mat();
+//        Mat rotateImg = rotateImg(rgba, 270);
+//        Imgproc.cvtColor(rotateImg, grayMat, Imgproc.COLOR_RGB2GRAY, 4);
+//        Imgproc.GaussianBlur(grayMat, grayMat, new Size(3, 3), 0);
 //
-//            target.release();
+//        final Mat cannedMat = new Mat();
+//        Imgproc.Canny(grayMat, cannedMat, 75, 200);
+//
+//        final GetContours getContours = new GetContours(cannedMat);
+//        final List<MatOfPoint> contours = getContours.contours();
+//            // Do nothing if contours is empty
+//            if (contours.isEmpty()) {
+//                return (rgba);
 //        }
-        //          ######## Here is starting point ########
-        if (target == null) {
-            Log.w(TAG, "Can't find target contour, aborting...");
-            return (rotateImg);
-        }
-
-        // Sort points
-        final Point[] points = new MatOfPoint(target).toArray();
-        final Point[] orderedPoints = new SortPointArray(points).sort();
-        Log.d(TAG, "Points: " + Arrays.toString(orderedPoints));
-
-        // Now apply perspective transformation
-        final TransformPerspective transformPerspective = new TransformPerspective(
-                points, rotateImg);
-        final Mat transformed = transformPerspective.transform();
-
-        // With the transformed points, now convert the image to gray scale
-        // and threshold it to give it the paper effect
-        Imgproc.cvtColor(transformed, transformed, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.adaptiveThreshold(transformed, transformed, 255,
-                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 21, 10);
-
-        final Size transformedSize = transformed.size();
-        final int resultW = (int) transformedSize.width;
-        final int resultH = (int) transformedSize.height;
-
-        final Mat result = new Mat(resultH, resultW, CvType.CV_8UC4);
-        transformed.convertTo(result, CvType.CV_8UC4);
-
-        final Bitmap bitmap = Bitmap.createBitmap(resultW, resultH, Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(result, bitmap);
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String filepath = ImageIO.savePath();
-                ImageIO.saveImageBitmap(bitmap, filepath);
-                thumnail.setVisibility(View.VISIBLE);
-                thumnail.setImageBitmap(bitmap);
-                replaceView(mRealTimeCameraView, thumnail);
-
-//              OCR process
-                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
-                FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
-                        .getCloudTextRecognizer();
-                FirebaseVisionCloudTextRecognizerOptions options = new FirebaseVisionCloudTextRecognizerOptions.Builder()
-                        .setLanguageHints(Arrays.asList("ko", "hi"))
-                        .build();
-                Task<FirebaseVisionText> result =
-                        detector.processImage(image)
-                                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-                                    @Override
-                                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
-                                                    Log.d(TAG, "OCR: Success");
-                                                    pictureBtn.setVisibility(View.GONE);
-                                                    resultTextView.setVisibility(View.VISIBLE);
-                                                    resultTextView.append(FirebaseVisionText.zzbxm.getText());
-                                                    Log.d(TAG, FirebaseVisionText.zzbxm.getText());
-
-                                                }
-                                            })
-                                                    .addOnFailureListener(
-                                        new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "OCR: Fail");
-                                            }
-                                        });
-            }
-        });
-        // release not needed mat
-        cannedMat.release();
-        grayMat.release();
-        Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
-                -1, mScalarGreen, 3);
-        return (rotateImg);
-    }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
+//        // Get the target contour
+//        final Scalar mScalarGreen = new Scalar(0, 255, 0);
+//        final Mat target = new GetTargetContour(contours).target();
+////        if (target != null) {
+////            Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
+////                    -1, mScalarGreen, 3);
+////          ######## Here is starting point ########
+////
+////            target.release();
+////        }
+//        //          ######## Here is starting point ########
+//        if (target == null) {
+//            Log.w(TAG, "Can't find target contour, aborting...");
+//            return (rotateImg);
+//        }
+//
+//        // Sort points
+//        final Point[] points = new MatOfPoint(target).toArray();
+//        final Point[] orderedPoints = new SortPointArray(points).sort();
+//        Log.d(TAG, "Points: " + Arrays.toString(orderedPoints));
+//
+//        // Now apply perspective transformation
+//        final TransformPerspective transformPerspective = new TransformPerspective(
+//                points, rotateImg);
+//        final Mat transformed = transformPerspective.transform();
+//
+//        // With the transformed points, now convert the image to gray scale
+//        // and threshold it to give it the paper effect
+//        Imgproc.cvtColor(transformed, transformed, Imgproc.COLOR_RGB2GRAY);
+//        Imgproc.adaptiveThreshold(transformed, transformed, 255,
+//                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 21, 10);
+//
+//        final Size transformedSize = transformed.size();
+//        final int resultW = (int) transformedSize.width;
+//        final int resultH = (int) transformedSize.height;
+//
+//        final Mat result = new Mat(resultH, resultW, CvType.CV_8UC4);
+//        transformed.convertTo(result, CvType.CV_8UC4);
+//
+//        final Bitmap bitmap = Bitmap.createBitmap(resultW, resultH, Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(result, bitmap);
+//
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                String filepath = ImageIO.savePath();
+//                ImageIO.saveImageBitmap(bitmap, filepath);
+//                thumnail.setVisibility(View.VISIBLE);
+//                thumnail.setImageBitmap(bitmap);
+//                replaceView(mRealTimeCameraView, thumnail);
+//
+////              OCR process
+//                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
+//                FirebaseVisionTextRecognizer detector = FirebaseVision.getInstance()
+//                        .getCloudTextRecognizer();
+//                FirebaseVisionCloudTextRecognizerOptions options = new FirebaseVisionCloudTextRecognizerOptions.Builder()
+//                        .setLanguageHints(Arrays.asList("ko", "hi"))
+//                        .build();
+//                Task<FirebaseVisionText> result =
+//                        detector.processImage(image)
+//                                .addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+//                                    @Override
+//                                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+//                                                    Log.d(TAG, "OCR: Success");
+//                                                    pictureBtn.setVisibility(View.GONE);
+//                                                    resultTextView.setVisibility(View.VISIBLE);
+//                                                    resultTextView.append(FirebaseVisionText.zzbxm.getText());
+//                                                    Log.d(TAG, FirebaseVisionText.zzbxm.getText());
+//
+//                                                }
+//                                            })
+//                                                    .addOnFailureListener(
+//                                        new OnFailureListener() {
+//                                                @Override
+//                                                public void onFailure(@NonNull Exception e) {
+//                                                    Log.d(TAG, "OCR: Fail");
+//                                            }
+//                                        });
+//            }
+//        });
+//        // release not needed mat
+//        cannedMat.release();
+//        grayMat.release();
+//        Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
+//                -1, mScalarGreen, 3);
+//        return (rotateImg);
+//    }
+//
+//    public static Bitmap rotateImage(Bitmap source, float angle) {
+//        Matrix matrix = new Matrix();
+//        matrix.postRotate(angle);
+//        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+//                matrix, true);
+//    }
 
     // permission
     static final int PERMISSIONS_REQUEST_CODE = 1000;
@@ -348,11 +348,6 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         return true;
     }
 
-    @Override
-    public void onPictureTaken(byte[] picture) {
-
-    }
-
     public Mat rotateImg(Mat src, double angle){
         Log.d("Test_log", String.valueOf(src.type()));
         Mat dst = new Mat(src.rows(), src.cols(), src.type());
@@ -362,28 +357,28 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         Imgproc.warpAffine(src, dst, rotMat, dst.size());
         return dst;
     }
-
-    public static ViewGroup getParent(View view) {
-        return (ViewGroup)view.getParent();
-    }
-
-    public static void removeView(View view) {
-        ViewGroup parent = getParent(view);
-        if(parent != null) {
-            parent.removeView(view);
-        }
-    }
-
-    public static void replaceView(View currentView, View newView) {
-        ViewGroup parent = getParent(currentView);
-        if(parent == null) {
-            return;
-        }
-        final int index = parent.indexOfChild(currentView);
-        removeView(currentView);
-        removeView(newView);
-        parent.addView(newView, index);
-    }
+//
+//    public static ViewGroup getParent(View view) {
+//        return (ViewGroup)view.getParent();
+//    }
+//
+//    public static void removeView(View view) {
+//        ViewGroup parent = getParent(view);
+//        if(parent != null) {
+//            parent.removeView(view);
+//        }
+//    }
+//
+//    public static void replaceView(View currentView, View newView) {
+//        ViewGroup parent = getParent(currentView);
+//        if(parent == null) {
+//            return;
+//        }
+//        final int index = parent.indexOfChild(currentView);
+//        removeView(currentView);
+//        removeView(newView);
+//        parent.addView(newView, index);
+//    }
 //    @Override
 //    public void onPictureTaken(byte[] picture) {
 //        Log.d(TAG, "Picture taken!");
@@ -392,5 +387,27 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 //        thumnail.setImageBitmap(bitmap);
 //        ImageIO.saveImageBitmap(bitmap);
 //    }
+
+    @Override
+    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        final Mat rgba = inputFrame.rgba();
+        final Mat rotateImg = rotateImg(rgba, 270);
+        mRealTimeProcessor.process(rotateImg);
+        return rotateImg;
+    }
+
+    @Override
+    public void onPictureTaken(byte[] picture) {
+        Log.d(TAG, "Picture taken!");
+        // Send the image to be precessed
+        final Intent imageBytes = new Intent(this, ProcessedImageActivity.class);
+        imageBytes.putExtra("image", picture);
+        // Image size data
+        final Camera.Size size = mRealTimeCameraView.size();
+        imageBytes.putExtra("width", size.width);
+        imageBytes.putExtra("height", size.height);
+        // Send to precess
+        startActivity(imageBytes);
+    }
 }
 
