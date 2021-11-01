@@ -3,56 +3,43 @@ package com.graduate.lookatv2;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Rect;
-import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.exifinterface.media.ExifInterface;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.vision.L;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptions;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
-import com.google.firebase.ml.vision.text.RecognizedLanguage;
 import com.graduate.lookatv2.camview.GetContours;
 import com.graduate.lookatv2.camview.GetTargetContour;
 import com.graduate.lookatv2.camview.ImageIO;
-import com.graduate.lookatv2.camview.ProcessedImageActivity;
 import com.graduate.lookatv2.camview.RealTimeCamera;
 import com.graduate.lookatv2.camview.RealTimeProcessor;
 import com.graduate.lookatv2.camview.SortPointArray;
 import com.graduate.lookatv2.camview.TransformPerspective;
-import com.graduate.lookatv2.camview.Constant;
 import com.graduate.lookatv2.commu.Connect;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCamera2View;
-import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
@@ -60,29 +47,20 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.regex.Pattern;
+
+import android.speech.tts.TextToSpeech;
 
 
 public class SearchActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnLongClickListener,
@@ -96,6 +74,9 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
     private ImageView thumnail;
     private TextView resultTextView;
     private List<String> serialNum;
+
+//  TTS
+    private TextToSpeech tts;
 
 //    public native void ConvertRGBtoGray(long matAddrInput, long matAddrResult);
 
@@ -156,6 +137,15 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 
 //      debugging log
         Log.d(TAG, "onCreate: end line");
+
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=android.speech.tts.TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.KOREAN);
+                }
+            }
+        });
     }
 
     @Override
@@ -204,6 +194,12 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
             Log.d(TAG, "onDestroy: mCameraView not null");
         } else {
             Log.d(TAG, "onDestroy: mCameraView=null");
+        }
+
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+            tts = null;
         }
     }
 
@@ -325,9 +321,13 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                                     Log.d(TAG + "--Result", "Empty result");
                                                                 else {
                                                                     Log.d(TAG + "--Result", String.valueOf(inputMsg.size()));
+                                                                    tts.setPitch(1.0f);
+                                                                    tts.setSpeechRate(0.85f);
                                                                     int i = 0;
                                                                     while (i < inputMsg.size()) {
-                                                                        Log.d(TAG + "--Result", inputMsg.get(i++));
+                                                                        Log.d(TAG + "--Result", inputMsg.get(i));
+                                                                        parsingJson(inputMsg.get(i));
+                                                                        i++;
                                                                     }
                                                                 }
                                                             } else {
@@ -352,6 +352,44 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         Imgproc.drawContours(rotateImg, Collections.singletonList(new MatOfPoint(target)),
                 -1, mScalarGreen, 3);
         return (rotateImg);
+    }
+
+    private void parsingJson(String src) {
+        if (src == null)
+            return ;
+        JSONObject obj = null;
+        List<String> keyNameList = new ArrayList<String>();
+        List<String> objValueList = new ArrayList<String>();
+        try {
+            obj = new JSONObject(src);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (obj == null)
+            return ;
+        Iterator key_list = obj.keys();
+        int k = 0;
+        while(key_list.hasNext()) {
+            String keyName = key_list.next().toString();
+            Log.d(TAG, String.valueOf(k) + " : " + keyName);
+            keyNameList.add(keyName);
+            k++;
+        }
+        int i = 0;
+        while (i < keyNameList.size()) {
+            try {
+                objValueList.add(obj.getString(keyNameList.get(i)));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } finally {
+                i++;
+            }
+        }
+        int j = 0;
+        while (j < objValueList.size()) {
+            tts.speak(objValueList.get(j), TextToSpeech.QUEUE_ADD, null);
+            j++;
+        }
     }
 
     private static boolean serialNumFilter(String str) {

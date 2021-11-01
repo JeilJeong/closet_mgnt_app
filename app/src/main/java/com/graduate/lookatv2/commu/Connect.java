@@ -55,7 +55,7 @@ public class Connect {
                     try {
                     byte[] buf = new byte[BUF_SIZE];
                     int read_Byte  = dataInput.read(buf);
-                    String input_message = new String(buf, 0, read_Byte);
+                    String input_message = new String(buf, 0, read_Byte, "UTF-8");
                     if (!input_message.equals(STOP_MSG)){
                         Log.d(TAG, input_message);
                         msgList.add(input_message);
