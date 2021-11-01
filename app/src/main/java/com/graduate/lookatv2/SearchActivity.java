@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.vision.L;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionCloudTextRecognizerOptions;
@@ -46,6 +47,7 @@ import com.graduate.lookatv2.camview.RealTimeProcessor;
 import com.graduate.lookatv2.camview.SortPointArray;
 import com.graduate.lookatv2.camview.TransformPerspective;
 import com.graduate.lookatv2.camview.Constant;
+import com.graduate.lookatv2.commu.Connect;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -311,8 +313,23 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                             boolean flag = serialNumFilter(str);
                                                             if (flag) {
                                                                 resultTextView.append("\nthis is succeed project: " + str);
-                                                                String substr = str.substring(str.indexOf("-") - 6);
+                                                                String substr = "";
+                                                                try {
+                                                                    substr = str.substring(str.indexOf("-") - 6);
+                                                                } catch (Exception e) {
+                                                                    e.printStackTrace();
+                                                                }
                                                                 resultTextView.append("\nparsed string: " + substr + "\n");
+                                                                List<String> inputMsg = communicateServer(substr);
+                                                                if (inputMsg.isEmpty())
+                                                                    Log.d(TAG + "--Result", "Empty result");
+                                                                else {
+                                                                    Log.d(TAG + "--Result", String.valueOf(inputMsg.size()));
+                                                                    int i = 0;
+                                                                    while (i < inputMsg.size()) {
+                                                                        Log.d(TAG + "--Result", inputMsg.get(i++));
+                                                                    }
+                                                                }
                                                             } else {
                                                                 resultTextView.append("\nfail");
                                                             }
@@ -412,13 +429,12 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         removeView(newView);
         parent.addView(newView, index);
     }
-//    @Override
-//    public void onPictureTaken(byte[] picture) {
-//        Log.d(TAG, "Picture taken!");
-//
-//        Bitmap bitmap = pictureProcesss(picture);
-//        thumnail.setImageBitmap(bitmap);
-//        ImageIO.saveImageBitmap(bitmap);
-//    }
+
+    public List<String> communicateServer(String outputMSG) {
+        List<String> inputMSG;
+        Connect con = new Connect();
+        inputMSG = con.connect(outputMSG);
+        return (inputMSG);
+    }
 }
 
