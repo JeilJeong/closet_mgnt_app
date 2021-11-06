@@ -1,12 +1,22 @@
 package com.graduate.lookatv2;
 
+import static com.graduate.lookatv2.camview.ImageIO.byteArrayToBitmap;
+import static com.graduate.lookatv2.camview.ImageIO.savePath;
+
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -52,6 +63,10 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +86,8 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
     private int mMode;
 
     private Button pictureBtn;
-    private ImageView thumnail;
+    private ImageView processedImgView;
+    private ImageView thumView;
     private TextView resultTextView;
     private List<String> serialNum;
 
@@ -83,6 +99,29 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
     static {
         System.loadLibrary("opencv_java4");
 //        System.loadLibrary("native-lib");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 101) {
+            if (resultCode == RESULT_OK) {
+                Uri fileUri = data.getData();
+
+                ContentResolver resolver = getContentResolver();
+                try {
+                    InputStream inputStream = resolver.openInputStream(fileUri);
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+//                    thumView.setImageBitmap(bitmap);
+                    inputStream.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 
     @Override
@@ -106,6 +145,7 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
         }
 
         mRealTimeCameraView = (RealTimeCamera) findViewById(R.id.java_camera_view);
+
         mRealTimeCameraView.setVisibility(SurfaceView.VISIBLE);
         mRealTimeCameraView.setCameraPermissionGranted();
         mRealTimeCameraView.setCvCameraViewListener(this);
@@ -127,13 +167,34 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
             }
         });
 
-//      thumnail imgview
-        thumnail = findViewById(R.id.image_thumnail);
-        thumnail.setVisibility(View.GONE);
+//      thumnail imageview
+        thumView = findViewById(R.id.thumVeiw);
+        thumView.setBackground(new ShapeDrawable(new OvalShape()));
+        thumView.setClipToOutline(true);
+        thumView.setVisibility(View.GONE);
+        thumView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+//              from do it android programming 94th lecture
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                startActivityForResult(intent, 101);
+                return true;
+            }
+        });
+
+
+
+//      processed imgview
+        processedImgView = findViewById(R.id.processed_img_view);
+        processedImgView.setVisibility(View.GONE);
 
 //      result TextView
         resultTextView = findViewById(R.id.resultTextView);
         resultTextView.setVisibility(View.GONE);
+
 
 //      debugging log
         Log.d(TAG, "onCreate: end line");
@@ -281,9 +342,9 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
             public void run() {
                 String filepath = ImageIO.savePath();
                 ImageIO.saveImageBitmap(bitmap, filepath);
-                thumnail.setVisibility(View.VISIBLE);
-                thumnail.setImageBitmap(bitmap);
-                replaceView(mRealTimeCameraView, thumnail);
+                processedImgView.setVisibility(View.VISIBLE);
+                processedImgView.setImageBitmap(bitmap);
+                replaceView(mRealTimeCameraView, processedImgView);
 
 //              OCR process
                 FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(bitmap);
@@ -337,13 +398,13 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                     }
                                                 }
                                             })
-                                                    .addOnFailureListener(
-                                        new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.d(TAG, "OCR: Fail");
-                                            }
-                                        });
+                                .addOnFailureListener(
+                    new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.d(TAG, "OCR: Fail");
+                        }
+                    });
             }
         });
         // release not needed mat
@@ -433,6 +494,11 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onPictureTaken(byte[] picture) {
+        Bitmap bitmap = byteArrayToBitmap(picture);
+        bitmap = rotateImage(bitmap, 90);
+        ImageIO.saveImageBitmap(bitmap, savePath());
+        thumView.setVisibility(View.VISIBLE);
+        thumView.setImageBitmap(bitmap);
 
     }
 
