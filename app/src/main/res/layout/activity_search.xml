@@ -23,42 +23,41 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="top|center" />
 
-        </FrameLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:background="@color/darkgray">
-
-                <Button
-                    android:id="@+id/camBtn"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_gravity="center"
-                    android:background="@drawable/ic_baseline_radio_button_unchecked_24"
-                    tools:ignore="SpeakableTextPresentCheck" />
-
-                <Button
-                    android:id="@+id/imgBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical|right"
-                    android:layout_marginRight="10dp"
-                    android:background="@drawable/button_background"
-                    android:fontFamily="@font/nanum_square_round_bold"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="5dp"
-                    android:text="촬영된 사진 보기"
-                    android:textColor="#fff"
-                    android:textSize="10sp" />
-
-                <TextView
-                    android:id="@+id/resultTextView"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="150dp"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:background="@color/darkgray">
 
+                        <Button
+                            android:id="@+id/camBtn"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/ic_baseline_radio_button_unchecked_24"
+                            tools:ignore="SpeakableTextPresentCheck" />
+
+<!--                        <Button-->
+<!--                            android:id="@+id/imgBtn"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:layout_gravity="center_vertical|right"-->
+<!--                            android:layout_marginRight="10dp"-->
+<!--                            android:background="@drawable/button_background"-->
+<!--                            android:fontFamily="@font/nanum_square_round_bold"-->
+<!--                            android:paddingHorizontal="10dp"-->
+<!--                            android:paddingVertical="5dp"-->
+<!--                            android:text="촬영된 사진 보기"-->
+<!--                            android:textColor="#fff"-->
+<!--                            android:textSize="10sp" />-->
+
+                        <TextView
+                            android:id="@+id/resultTextView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                </FrameLayout>
         </FrameLayout>
 
 </LinearLayout>
