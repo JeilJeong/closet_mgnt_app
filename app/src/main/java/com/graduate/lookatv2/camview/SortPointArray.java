@@ -34,7 +34,8 @@ public final class SortPointArray {
         public int compare(Point o1, Point o2) {
             final double p1 = o1.x + o1.y;
             final double p2 = o2.x + o2.y;
-            return Double.valueOf(p1).compareTo(p2);
+//            return Double.valueOf(p1).compareTo(p2);
+            return (int)(p1 - p2);
         }
     };
 
@@ -46,7 +47,8 @@ public final class SortPointArray {
         public int compare(Point o1, Point o2) {
             final double p1 = o1.y - o1.x;
             final double p2 = o2.y - o2.x;
-            return Double.valueOf(p1).compareTo(p2);
+//            return Double.valueOf(p1).compareTo(p2);
+            return (int)(p1 - p2);
         }
     };
 
@@ -56,10 +58,10 @@ public final class SortPointArray {
 
         // top-left corner
         result[0] = Collections.min(pointList, sum);
-        // top-right
-        result[1] = Collections.min(pointList, diff);
         // bottom-right
         result[2] = Collections.max(pointList, sum);
+        // top-right
+        result[1] = Collections.min(pointList, diff);
         // bottom-left
         result[3] = Collections.max(pointList, diff);
 

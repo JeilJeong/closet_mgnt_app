@@ -1,5 +1,7 @@
 package com.graduate.lookatv2.camview;
 
+import android.util.Log;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -49,7 +51,8 @@ public final class RealTimeProcessor {
         return (rotateImg);
     }
 
-    public Mat rotateImg(Mat src, double angle) {
+    public Mat rotateImg(Mat src, double angle){
+        Log.d("Test_log", String.valueOf(src.type()));
         Mat dst = new Mat(src.rows(), src.cols(), src.type());
         Mat rotMat = new Mat(2, 3, CvType.CV_32FC1);
         Point center = new Point(dst.cols() / 2, dst.rows() / 2);

@@ -134,15 +134,19 @@ public class ImageIO {
         return bytes;
     }
 
-    public static File saveImageBitmap(Bitmap bmp) {
+    public static String savePath() {
+        String filepath = new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
+        return filepath;
+    }
+
+    public static File saveImageBitmap(Bitmap bmp, String filepath) {
         if (bmp == null) {
             Log.d(TAG, "saveImageBitmap: null");
             return null;
         }
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String filename = new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date());
-        File f = new File(ROOT_DIRECTORY + "/" + filename + ".jpeg");
+        File f = new File(ROOT_DIRECTORY + "/" + filepath + ".jpeg");
         FileOutputStream fo = null;
         try {
             f.createNewFile();
@@ -154,7 +158,6 @@ public class ImageIO {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return f;
     }
 }
