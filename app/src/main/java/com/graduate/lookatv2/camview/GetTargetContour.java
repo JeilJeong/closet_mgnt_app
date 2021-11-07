@@ -1,7 +1,5 @@
 package com.graduate.lookatv2.camview;
 
-import com.graduate.lookatv2.SearchActivity;
-
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;

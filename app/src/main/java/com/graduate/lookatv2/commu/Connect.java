@@ -3,8 +3,6 @@ package com.graduate.lookatv2.commu;
 import android.os.Handler;
 import android.util.Log;
 
-import com.graduate.lookatv2.camview.ProcessedImageActivity;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -26,7 +24,7 @@ public class Connect {
 
     private static int BUF_SIZE = 1024;
 
-    private static final String TAG = "AndroidOpenCv: " + ProcessedImageActivity.class.getSimpleName();
+    private static final String TAG = "AndroidOpenCv: " + Connect.class.getSimpleName();
 
     public List<String> connect(String outputMSG){
         mHandler = new Handler();
@@ -80,6 +78,15 @@ public class Connect {
         }
         Log.d(TAG, "after starting");
         return (msgList);
+    }
+
+    public static List<String> communicateServer(String outputMSG) {
+        if (outputMSG == null)
+            return (null);
+        List<String> inputMSG;
+        Connect con = new Connect();
+        inputMSG = con.connect(outputMSG);
+        return (inputMSG);
     }
 }
 
