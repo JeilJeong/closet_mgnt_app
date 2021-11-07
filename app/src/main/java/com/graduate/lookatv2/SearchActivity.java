@@ -76,6 +76,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import android.speech.tts.TextToSpeech;
+import android.widget.Toast;
 
 
 public class SearchActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnLongClickListener,
@@ -359,6 +360,8 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                     @Override
                                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
                                                     Log.d(TAG, "OCR: Success");
+                                                    tts.setPitch(1.0f);
+                                                    tts.setSpeechRate(1.0f);
                                                     pictureBtn.setVisibility(View.GONE);
                                                     resultTextView.setVisibility(View.VISIBLE);
                                                     List<FirebaseVisionText.TextBlock> textBlocks = firebaseVisionText.getTextBlocks();
@@ -369,6 +372,8 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                             resultTextView.append(str);
                                                             boolean flag = serialNumFilter(str);
                                                             if (flag) {
+                                                                tts.speak("상품 정보를 불러오는 중입니다.. 잠시만 기다려주세요", TextToSpeech.QUEUE_ADD, null);
+//                                                                Toast.makeText(getApplicationContext(), "Wait.. Collecting product information!", Toast.LENGTH_LONG);
                                                                 resultTextView.append("\nthis is succeed project: " + str);
                                                                 String substr = "";
                                                                 try {
@@ -382,8 +387,6 @@ public class SearchActivity extends AppCompatActivity implements CameraBridgeVie
                                                                     Log.d(TAG + "--Result", "Empty result");
                                                                 else {
                                                                     Log.d(TAG + "--Result", String.valueOf(inputMsg.size()));
-                                                                    tts.setPitch(1.0f);
-                                                                    tts.setSpeechRate(0.85f);
                                                                     int i = 0;
                                                                     while (i < inputMsg.size()) {
                                                                         Log.d(TAG + "--Result", inputMsg.get(i));
