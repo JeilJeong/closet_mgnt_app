@@ -25,11 +25,11 @@ This project was created for the purpose of submitting works for graduation.
 </br>		 - Google TTS(Text to Speech): firebase-bom: 28.4.1
 </br>		 - OpenCV: 4.5.3
  - Version
-		 - compileSdk 30
-		 - minSdkVersion: 21
-		 - targetSdkVersion: 30
+</br>		 - compileSdk 30
+</br>		 - minSdkVersion: 21
+</br>		 - targetSdkVersion: 30
  - Test device version
-		 - 11(API Level 30)
+</br>		 - 11(API Level 30)
 
 ## Usage
 
