@@ -3,6 +3,7 @@ package com.graduate.lookatv2;
 import static com.graduate.lookatv2.camview.ImageIO.byteArrayToBitmap;
 import static com.graduate.lookatv2.camview.ImageIO.savePath;
 import static com.graduate.lookatv2.camview.PreProcessImage.getPreProcessedImage;
+import static com.graduate.lookatv2.ocr.ProcessOcr.processOcr;
 import static com.graduate.lookatv2.ocr.ProcessingOcrToTts.processOcrToTTS;
 import static com.graduate.lookatv2.utils.PrintUtil.printLog;
 import static com.graduate.lookatv2.utils.TransformUtil.rotateBitmapImage;
@@ -10,6 +11,7 @@ import static com.graduate.lookatv2.utils.ViewUtil.replaceView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -133,16 +135,7 @@ public class SearchByTextActivity extends AppCompatActivity implements CameraBri
             public void onClick(View v) {
                 replaceView(processedImgView, mRealTimeCameraView);
                 restart_cam_btn.setVisibility(View.GONE);
-            }
-        });
-
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                printLog("tts onInit()");
-                if(status!=android.speech.tts.TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.KOREAN);
-                }
+                resultTextView.setText("");
             }
         });
 
@@ -301,16 +294,8 @@ public class SearchByTextActivity extends AppCompatActivity implements CameraBri
             }
         });
 
-//      [processing] 6) get to process text_recognition & convert_tts
-        processOcrToTTS(bitmap, tts, resultTextView);
-
-////      [processing] 7) after ocr and tts, change ImageView to Preview again
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                replaceView(processedImgView, mRealTimeCameraView);
-//            }
-//        });
+//      [processing] 6) get to process text_recognition & open custom browser
+        processOcr(bitmap, resultTextView, this);
 
         return (return_frame);
     }
