@@ -19,11 +19,11 @@ This project was created for the purpose of submitting works for graduation.
  - IDE: Android Studio Arctic Fox 2020.03.01 Patch 2
  - Language: Based on Java(JDK 11.0.10)
  - Plugins(dependencies)
-		 - MLkit-text-recognition: 16.1.2
-		 - Firebase-ml-vision: 24.1.0
-		 - Chrome custom browser: 1.3.0
-		 - Google TTS(Text to Speech): firebase-bom: 28.4.1
-		 - OpenCV: 4.5.3
+</br>		 - MLkit-text-recognition: 16.1.2
+</br>		 - Firebase-ml-vision: 24.1.0
+</br>		 - Chrome custom browser: 1.3.0
+</br>		 - Google TTS(Text to Speech): firebase-bom: 28.4.1
+</br>		 - OpenCV: 4.5.3
  - Version
 		 - compileSdk 30
 		 - minSdkVersion: 21
