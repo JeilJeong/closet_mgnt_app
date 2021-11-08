@@ -1,5 +1,7 @@
 package com.graduate.lookatv2.commu;
 
+import static com.graduate.lookatv2.commu.Constant.*;
+
 import android.os.Handler;
 import android.util.Log;
 
@@ -17,12 +19,7 @@ public class Connect {
     private Socket client;
     private DataOutputStream dataOutput;
     private DataInputStream dataInput;
-    private static String SERVER_IP = "172.30.16.172";
-    private static String CONNECT_MSG = "connect";
-    private static String STOP_MSG = "stop";
-    private static int PORT = 8080;
 
-    private static int BUF_SIZE = 1024;
 
     private static final String TAG = "AndroidOpenCv: " + Connect.class.getSimpleName();
 
