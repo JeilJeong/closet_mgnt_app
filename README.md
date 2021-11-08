@@ -1,6 +1,6 @@
 ## Overview
-This project is a shopping assistance application that can be used by blind(especially low vision) and non-blind users.  
-This project was created for the purpose of submitting works for graduation.
+1. This project is a shopping assistance application that can be used by blind(especially low vision) and non-blind users.  
+2. This project was created for the purpose of submitting works for graduation.
 
 ## Feature
  1. It's an on-off connection application to quickly access online information when shopping.
@@ -32,7 +32,13 @@ This project was created for the purpose of submitting works for graduation.
 </br>		 - 11(API Level 30)
 
 ## Usage
-
+1. First of all, you should clone this project.
+2. Second, please split the directory named 'lookat_python_server', because this folder is server program written by python and does not related with build steps in android application
+3. Third, open the 'lookat_python_server' directory by the Visual Studio Code, and then run the project on 'connect.py'
+4. Fourth, When you do the above task number 3 successfully, you can watch your internal private IP address on your terminal. Copy the IP address and then paste it to 'SERVER_IP' in 'Constant.java' in 'com.graduate.lookat2.commu' pakage.
+5. Fifth, please check port number, if you already use '8080 port', you must change the port number that is any number you want. In this case, you must change the port number both in 'Constant.java' file that already said and in 'conn_constant.py' in 'lookat_python_servers' directory.
+6. Finally, at this time, maybe your server is running, and the remain task is build your android project(please check the above 'Environment' when you faced with the problem).
+ 
 ## License
 This proejct is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0).
 
