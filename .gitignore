@@ -123,6 +123,15 @@ output.json
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+### OpenCV ###
+#OpenCV for Mac and Linux
+#build and release folders
+*/CMakeFiles
+*/CMakeCache.txt
+*/Makefile
+*/cmake_install.cmake
+.DS_Store
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
