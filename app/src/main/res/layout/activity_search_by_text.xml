@@ -29,15 +29,14 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="3">
-        <!--                <ImageView-->
-        <!--                    android:layout_width="100dp"-->
-        <!--                    android:layout_height="100dp" />-->
         <TextView
             android:id="@+id/resultTextView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="#D3252525"
-            android:textSize="30sp"
+            android:textAlignment="center"
+            android:fontFamily="@font/nanum_square_round_bold"
+            android:textColor="#D3FFFFFF"
+            android:textSize="20sp"
             android:padding="10dp"/>
         <Button
             android:id="@+id/restart_cam_btn"
