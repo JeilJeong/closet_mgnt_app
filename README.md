@@ -36,7 +36,7 @@
 2. Second, please split the directory named 'lookat_python_server', because this folder is server program written by python and does not related with build steps in android application.
 3. Third, open the 'lookat_python_server' directory by the Visual Studio Code, and then run the project on 'connect.py'.
 4. Fourth, When you do the above task number 3 successfully, you can watch your internal private IP address on your terminal. Copy the IP address and then paste it to 'SERVER_IP' in 'Constant.java' in 'com.graduate.lookat2.commu' pakage in android project.
-5. Fifth, please check port number, if you already use '8080 port', you must change the port number that is any number you want. In this case, you must change the port number both in 'Constant.java' file that already said and in 'conn_constant.py' in 'lookat_python_servers' directory.
+5. Fifth, please check the port number, if you already use the '8080 port', you must change the port number that is any number you want. In this case, you must change the port number both in 'Constant.java' file that already said and in 'conn_constant.py' in 'lookat_python_servers' directory. If you doesn't, just go to next steps below.
 6. Finally, at this time, maybe your server is running, and the remain task is build your android project(please check the above 'Environment' when you faced with the problem).
  
 ## License
