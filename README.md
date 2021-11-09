@@ -1,7 +1,7 @@
 # LooKAT: the shopping-aid application
 
 ## Description
-https://youtu.be/BNxVOXCbuxY
+Link for description on the youtube(https://youtu.be/BNxVOXCbuxY)
 
 ## Overview
 1. This project is a shopping assistance application that can be used by blind(especially low vision) and non-blind users.  
